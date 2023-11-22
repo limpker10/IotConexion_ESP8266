@@ -24,8 +24,8 @@ const long interval = 5000;
 WiFiClientSecure net;
  
 BearSSL::X509List cert(cacert);
-BearSSL::X509List client_crt(client_cert);
-BearSSL::PrivateKey key(privkey);
+// BearSSL::X509List client_crt(client_cert);
+// BearSSL::PrivateKey key(privkey);
  
 PubSubClient client(net);
 
@@ -103,7 +103,7 @@ void connectAWS()
   NTPConnect();
   
   net.setTrustAnchors(&cert);
-  net.setClientRSACert(&client_crt, &key);
+  //net.setClientRSACert(&client_crt, &key);
  
   client.setServer(MQTT_HOST, 8883);
   client.setCallback(messageReceived);
@@ -113,18 +113,18 @@ void connectAWS()
  
   while (!client.connect(THINGNAME))
   {
-    Serial.print("AWS..");
+    Serial.print("Mosquito Broker ...");
     delay(1000);
   }
  
   if (!client.connected()) {
-    Serial.println("AWS IoT Timeout!");
+    Serial.println("Mosquito Broker Timeout!");
     return;
   }
   // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
  
-  Serial.println("AWS IoT Connected!");
+  Serial.println("Mosquito Broker Connected!");
 }
  
  
