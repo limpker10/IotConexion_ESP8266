@@ -18,8 +18,8 @@ unsigned long lastMillis = 0;
 unsigned long previousMillis = 0;
 const long interval = 5000;
  
-#define AWS_IOT_PUBLISH_TOPIC   "esp8266/pub"
-#define AWS_IOT_SUBSCRIBE_TOPIC "esp8266/sub"
+#define AWS_IOT_PUBLISH_TOPIC   "esp8266/mosquitto"
+#define AWS_IOT_SUBSCRIBE_TOPIC "mosquitto/esp8266"
  
 WiFiClientSecure net;
  
@@ -96,7 +96,7 @@ void connectAWS()
  
   while (WiFi.status() != WL_CONNECTED)
   {
-    Serial.print("Wi.");
+    Serial.print(".");
     delay(1000);
   }
   
@@ -109,11 +109,11 @@ void connectAWS()
   client.setCallback(messageReceived);
  
  
-  Serial.println("Connecting to AWS IOT");
+  Serial.println("Connecting to Mosquito Broker");
  
   while (!client.connect(THINGNAME))
   {
-    Serial.print("Mosquito Broker ...");
+    Serial.print(".");
     delay(1000);
   }
  
@@ -130,13 +130,19 @@ void connectAWS()
  
 void publishMessage()
 {
+   // Obtener la hora actual en un formato legible
+  struct tm timeinfo;
+  gmtime_r(&now, &timeinfo);
+  char timeBuffer[25]; // Buffer para almacenar la hora formateada
+  strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
+
   StaticJsonDocument<200> doc;
-  doc["timestamp"] = millis();
+  doc["timestamp"] = timeBuffer;
   doc["humidity"] = h;
   doc["temperature"] = t;
   doc["UnitHumidity"] = "g/m^3";
   doc["UnitTemperature"] = "°C";
-  doc["Notes"] = "Conexion pro 4k mega upload full gratis";
+  doc["Notes"] = "Envio de datos del sensor DHT11";
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
  
@@ -171,8 +177,9 @@ void loop()
   Serial.print(t);
   Serial.println(F("°C "));
   delay(6000);
- 
- 
+  
+  now = time(nullptr);
+  
   if (!client.connected())
   {
     connectAWS();
