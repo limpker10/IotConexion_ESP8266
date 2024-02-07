@@ -19,13 +19,11 @@ unsigned long previousMillis = 0;
 const long interval = 5000;
  
 #define AWS_IOT_PUBLISH_TOPIC   "esp8266/mosquitto"
-#define AWS_IOT_SUBSCRIBE_TOPIC "mosquitto/esp8266"
+#define AWS_IOT_SUBSCRIBE_TOPIC "aws/sub"
  
 WiFiClientSecure net;
  
 BearSSL::X509List cert(cacert);
-// BearSSL::X509List client_crt(client_cert);
-// BearSSL::PrivateKey key(privkey);
  
 PubSubClient client(net);
 
@@ -86,7 +84,7 @@ void messageReceived(char *topic, byte *payload, unsigned int length)
 }
  
  
-void connectAWS()
+void connectMosquitto()
 {
   delay(8000);
   WiFi.mode(WIFI_STA);
@@ -154,7 +152,7 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT); // Configurar el pin del LED como salida
-  connectAWS();
+  connectMosquitto();
   dht.begin();
   delay(1000);
 }
@@ -182,7 +180,7 @@ void loop()
   
   if (!client.connected())
   {
-    connectAWS();
+    connectMosquitto();
   }
   else
   {
